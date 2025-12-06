@@ -21,7 +21,8 @@ echo "[1]------------------------Attack"
 echo "[2]------------------------Scanner"
 echo "[3]------------------------Usage"
 echo "[4]------------------------Nmap"
-echo "[5]------------------------Exit"
+echo "[5]------------------------Osint"
+echo "[6]------------------------Exit"
 printf "${NORMAL}"
 #Xdat
 system=1
@@ -36,7 +37,7 @@ do
 	then
 		read -p "Host:" host
 		read -p "Port:" port
-		if nc -z $host $port
+		if nc -z $host $port &>/dev/null
 		then
 			echo "[$host]:Port($port) is open!"
 		else
@@ -70,12 +71,70 @@ do
 		fi
 	elif [ "$prompt" == "5" ]
 	then
+		echo "=============================="
+		echo "     SYSTEM INFO GATHER       "
+		echo "=============================="
+		echo
+
+		echo "[+] OS Info:"
+		uname -a
+		echo
+
+		echo "[+] CPU Info:"
+		lscpu | grep -E 'Model name|CPU MHz|Architecture'
+		echo
+
+		echo "[+] Memory Info:"
+		free -h
+		echo
+
+		echo "[+] Disk Usage:"
+		df -h
+		echo
+
+		echo "[+] Network Interfaces:"
+		ip a
+		echo
+
+		echo "[+] Default Gateway:"
+		ip route | grep default
+		echo
+
+		echo "[+] Active Network Connections:"
+		ss -tulpn
+		echo
+
+		echo "[+] Current User:"
+		whoami
+		echo
+
+		echo "[+] Logged-in Users:"
+		who
+		echo
+
+		echo "[+] Running Processes:"
+		ps aux --sort=-%mem | head -n 10
+		echo
+
+		echo "[+] Installed Packages (Debian/Ubuntu):"
+		if command -v dpkg &>/dev/null
+		then
+			dpkg -l | head -n 20
+		elif command -v rpm &>/dev/null
+		then
+			echo "[+] Installed Packages (RHEL/CentOS):"
+		rpm -qa | head -n 20
+		else
+		echo "Package manager not detected."
+		fi
+	elif [ "$prompt" == "6" ]
+	then
 		#speaker-test -t sine -f 1000 -l 1 &>/dev/null &
-		sleep 2
+		#sleep 1
 		break
 	else
 		printf "${RED}"
-		echo "$prompt is not valid"
+		echo "'$prompt' is not valid"
 		printf "${NORMAL}"
 	fi
 done
